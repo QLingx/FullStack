@@ -6,6 +6,8 @@
 #include <arpa/inet.h>
 
 #include "server.h"
+#include "request.h"
+#include "response.h"
 
 static inline int createSocket(unsigned int port)
 {
@@ -41,9 +43,11 @@ static inline void handle(Server *server,int fd,fd_set *activeFDs,struct sockadd
 
     if((nread = recv(fd,buff,sizeof(buff),0)) < 0){
         fprintf(stderr,"Failed to call recv\n");
-    }else{
+    }else if(nread > 0){
         buff[nread] = '\0';
-        fprintf(stdout,buff);
+        Request *request = newRequest(buff);
+        Response *response = NULL;
+        responseWrite(response,fd);
     }
 
     close(fd);
@@ -95,7 +99,6 @@ void serverServe(Server *server)
             FD_SET(newSock, &activeFDs);
         }
 
-        fprintf(stdout,"-----------------------------------------------here\n");
         for (int fd = sock + 1; fd < nfds; ++fd)
         {
             fprintf(stdout,"totalfd:%d,currentfd:%d\n",nfds,fd);

@@ -5,4 +5,5 @@ typedef struct Server{
     unsigned int port;
 }Server;
 
+void serverServe(Server *server);
 #endif
